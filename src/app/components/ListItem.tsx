@@ -4,40 +4,42 @@ import { ListItemType } from '../data';
 
 interface ListItemProps {
     item: ListItemType;
-    removeEl?(id: number): void;
+    emitRemove?(id: number): void;
 }
 
-const ListItem: React.FC<ListItemProps> = React.memo(({ item, removeEl }) => {
-    const [data, setData] = useState(item);
-    const [rerenderKey, setRerenderKey] = useState(0);
+const ListItem: React.FC<ListItemProps> = React.memo(({ item, emitRemove }) => {
+    const [id] = useState<number>(item.id);
+    const [children, setChildren] = useState(item.children);
+
+    // консоль для проверки кол-ва рендеров
     console.log('render:  ', item.id)
     const addChild = () => {
-        const newData = {...data};
-        const child = { id: Date.now(), children: [] }
-        newData.children.push(child);
-        setData(newData);
+        setChildren(prev => [...prev, {id: Date.now(), children: []}])
     };
 
-    const removeChild = (id: number) => {
-        const newData = {...data};
-        newData.children = newData.children.filter(item => item.id != id);
-        setData(newData);
-        setRerenderKey(rerenderKey+1);
+    const removeChild = (childId: number) => {
+        setChildren(prev => prev.filter(it => it.id !== childId))
     };
+
+
+    // если задача подразумевала сохранить древо в переменную,тогда для этого
+    // можно распарсить DOM и вытянуть все айдишники и их потомков, используя data-id.
+    //
+    // В ТЗ такого условия не было, поэтому не стал делать.
 
     return (
-        <ListItemContainer data-id={item.id}>
-            <ItemText>Элемент {item.id}</ItemText>
+        <ListItemContainer data-id={id}>
+            <ItemText>Элемент {id}</ItemText>
             <ButtonContainer>
                 <Button onClick={addChild}>Добавить наследника</Button>
-                <Button onClick={() => removeEl && removeEl(item.id)} disabled={item.id === 1}>
+                <Button onClick={() => emitRemove && emitRemove(id)} disabled={id === 1}>
                     Удалить элемент
                 </Button>
             </ButtonContainer>
-            {data.children.length > 0 && (
-                <ChildrenContainer data-type={'container'}>
-                    {data.children.map((child) => (
-                        <ListItem data-id={child.id} key={child.id + rerenderKey} item={child} removeEl={removeChild} />
+            {children.length > 0 && (
+                <ChildrenContainer data-type={'children'}>
+                    {children.map((child) => (
+                        <ListItem data-id={child.id} key={child.id} item={child} emitRemove={removeChild} />
                     ))}
                 </ChildrenContainer>
             )}

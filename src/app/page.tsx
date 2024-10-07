@@ -7,8 +7,10 @@ import styled from 'styled-components';
 const App: React.FC = () => {
     return (
         <AppContainer>
-            <Title>Вложенный список</Title>
-            <ListItem item={initialList}  />
+            <div>
+                <Title>Вложенный список 1</Title>
+                <ListItem item={initialList}/>
+            </div>
         </AppContainer>
     );
 };
@@ -17,9 +19,9 @@ export default App;
 
 // Стили
 const AppContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
   padding: 20px;
 `;
 
